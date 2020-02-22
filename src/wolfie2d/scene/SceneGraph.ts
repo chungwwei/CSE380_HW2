@@ -1,5 +1,6 @@
 import {SceneObject} from './SceneObject'
 import {AnimatedSprite} from './sprite/AnimatedSprite'
+import { Vector3 } from '../math/Vector3';
 
 export class SceneGraph {
     // AND ALL OF THE ANIMATED SPRITES, WHICH ARE NOT STORED
@@ -32,6 +33,30 @@ export class SceneGraph {
                 return sprite;
         }
         return null;
+    }
+
+    public getAnimatedSprites(): Array<AnimatedSprite> {    
+        return this.animatedSprites;
+    }
+
+
+    public removeSprite(sprite: AnimatedSprite): void {
+        console.log("removing function is called")
+        var spritePos: Vector3 = sprite.getPosition();
+
+        let newArr = new Array<AnimatedSprite>();
+        if (sprite != null) {
+            for (let s of this.animatedSprites) {
+                let pos: Vector3 = s.getPosition();
+                if (pos.getX() !== spritePos.getX() &&
+                    pos.getY() !== spritePos.getY()) {
+                    newArr.push(s);
+                }
+            }
+        }
+        console.log(`old size: ${this.animatedSprites.length} ... new size:${newArr.length}`);
+        console.log(newArr)
+        this.animatedSprites = newArr;
     }
 
     /**
