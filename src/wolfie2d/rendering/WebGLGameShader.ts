@@ -13,6 +13,14 @@ export class WebGLGameShader {
         return this.program;
     }
 
+    public getVertexShader(): WebGLShader {
+        return this.vertexShader;
+    }
+
+    public getFragmentShader(): WebGLShader {
+        return this.vertexShader;
+    }
+
     public init(webGL : WebGLRenderingContext, vSource : string, fSource : string) : void {
         this.vertexShader = <WebGLShader>this.createShader(webGL, webGL.VERTEX_SHADER, vSource);
         this.fragmentShader = <WebGLShader>this.createShader(webGL, webGL.FRAGMENT_SHADER, fSource);

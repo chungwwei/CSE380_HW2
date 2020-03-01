@@ -35,7 +35,7 @@ export class Game extends GameLoopTemplate {
 
     public init(gameCanvasId : string, textCanvasId : string) : void {
         this.renderingSystem.init(gameCanvasId, textCanvasId);
-        this.uiController.init(gameCanvasId, this.sceneGraph);
+        this.uiController.init(gameCanvasId, this.sceneGraph, this.getRenderingSystem());
     }
 
     public begin() : void {

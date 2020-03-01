@@ -1,3 +1,5 @@
+import { WebGLGameShader } from './../wolfie2d/rendering/WebGLGameShader';
+import { WebGLGameSpriteRenderer } from './../wolfie2d/rendering/WebGLGameSpriteRenderer';
 /*
  * AnimatedSpriteDemo.ts - demonstrates some simple sprite rendering and 
  * animation as well as some basic mouse interactions. Note that the
@@ -65,18 +67,101 @@ class AnimatedSpriteDemo {
         let canvasHeight : number = (<HTMLCanvasElement>document.getElementById("game_canvas")).height;
 
         // BUILD A BUNCH OF CIRCLE SPRITES
-        for (let i = 0; i < DEMO_SPRITE_TYPES.length; i++) {
-            for (let j = 0; j < 5; j++) {
-                let spriteTypeToUse : string = DEMO_SPRITE_TYPES[i];
-                let animatedSpriteType : AnimatedSpriteType = resourceManager.getAnimatedSpriteTypeById(spriteTypeToUse);
-                let spriteToAdd : AnimatedSprite = new AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
-                let randomX : number = Math.floor(Math.random() * canvasWidth) - (animatedSpriteType.getSpriteWidth()/2);
-                let randomY : number = Math.floor(Math.random() * canvasHeight) - (animatedSpriteType.getSpriteHeight()/2);
-                spriteToAdd.getPosition().set(randomX, randomY, 0.0, 1.0);
-                scene.addAnimatedSprite(spriteToAdd);
-            }
-        }
+        // for (let i = 0; i < DEMO_SPRITE_TYPES.length; i++) {
+        //     for (let j = 0; j < 5; j++) {
+        //         let spriteTypeToUse : string = DEMO_SPRITE_TYPES[i];
+        //         let animatedSpriteType : AnimatedSpriteType = resourceManager.getAnimatedSpriteTypeById(spriteTypeToUse);
+        //         let spriteToAdd : AnimatedSprite = new AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
+        //         let randomX : number = Math.floor(Math.random() * canvasWidth) - (animatedSpriteType.getSpriteWidth()/2);
+        //         let randomY : number = Math.floor(Math.random() * canvasHeight) - (animatedSpriteType.getSpriteHeight()/2);
+        //         spriteToAdd.getPosition().set(randomX, randomY, 0.0, 1.0);
+        //         scene.addAnimatedSprite(spriteToAdd);
+        //     }
+        // }
+
+        // For gradient cirlce with shader
+
+        // for (let j = 0; j < 5; j++) {
+            let renderingSystem: WebGLGameRenderingSystem = game.getRenderingSystem();
+            let spriteRenderer: WebGLGameSpriteRenderer = renderingSystem.getSpriteRenderer();
+            let gl: WebGLRenderingContext = renderingSystem.getWebGL();
+
+            let shader: WebGLGameShader = spriteRenderer.getShader();
+            var vertexShaderText = [
+                'precision highp float;',
+                'attribute vec2 positions;',
+    
+                'void main() {',
+                'gl_Position = vec4(positions, 0.0, 1.0);',    
+                '}',
+            ].join('\n');
+
+            var fragmentShaderText =
+                [
+                'precision highp float;',
+                '',
+                'uniform vec4 color;',
+                'void main()',
+                '{',
+                '  gl_FragColor = vec4(1.0, 0, 0, 1.0);',
+                '}'
+                ].join('\n');
+            let vs = document.getElementById("standard-vs").innerHTML;
+            let fs = document.getElementById("standard-fs").innerHTML;
+            let vShader = shader.createShader(gl, gl.VERTEX_SHADER, vertexShaderText);
+            let fShader = shader.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderText);
+
+            
+            
+            // context is the gl
+            // let vShader: WebGLShader = shader.getVertexShader();
+            // let fShader: WebGLShader = shader.getFragmentShader();
+            // console.log("The v shader:" + vShader);
+            // var program: WebGLProgram = shader.getProgram();
+            var program: WebGLProgram = shader.createShaderProgram(gl, vShader, fShader);
+
+            // let positions = [];
+            // for (let i = 0; i < 100; i ++) {
+            //     positions.push(Math.cos(i * 2 * Math.PI / 100));
+            //     positions.push(Math.sin(i * 2 * Math.PI / 100));
+            // }
+
+            console.log("program:" + program);
+            gl.clearColor(0.2, 0.85, 0.9, 1.0);
+            // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            
+            let vertices = [
+                0.0,0.5, 
+                -0.5,-0.5, 
+                0.0,-0.5,
+            ]
+
+            var buffer = gl.createBuffer()
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+            // var color = gl.getUniformLocation(program, "color");
+            // gl.uniform4fv(color, [0, 1, 0, 1.0]);
+        
+            var position = gl.getAttribLocation(program, "positions")
+            console.log("position: " + position)
+            gl.useProgram(program);
+        
+            gl.enableVertexAttribArray(position)
+            gl.vertexAttribPointer(position, 
+                2, 
+                gl.FLOAT, 
+                false, 
+                2 * Float32Array.BYTES_PER_ELEMENT,
+                0
+            );
+            let g = gl.drawArrays(gl.TRIANGLES, 0, 3);
+            console.log(g);
+            console.log("Ending rendering gradient circles")
+        // }
     }
+
+    
 
     /*
      * Builds all the text to be displayed in the application.
@@ -93,7 +178,7 @@ class AnimatedSpriteDemo {
 
 // THIS IS THE ENTRY POINT INTO OUR APPLICATION, WE MAKE
 // THE Game OBJECT AND INITIALIZE IT WITH THE CANVASES
-let game = new Game();
+export let game = new Game();
 game.init("game_canvas", "text_canvas");
 
 // BUILD THE GAME SCENE

@@ -37,6 +37,10 @@ export class WebGLGameSpriteRenderer {
     private webGLUniformLocations : HashTable<WebGLUniformLocation>;
 
     public constructor() {}
+
+    public getShader(): WebGLGameShader {
+        return this.shader;
+    }
     
     public init(webGL : WebGLRenderingContext) : void {
         this.shader = new WebGLGameShader();
