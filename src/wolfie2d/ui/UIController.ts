@@ -20,6 +20,8 @@ export class UIController {
     private dragOffsetX : number;
     private dragOffsetY : number;
     private renderingSystem : WebGLGameRenderingSystem;
+    private detail: TextToRender;
+    private mouseOverSprite: AnimatedSprite;
 
     public constructor() {}
 
@@ -38,14 +40,11 @@ export class UIController {
         canvas.addEventListener("mouseup", this.mouseUpHandler);
         canvas.addEventListener("click", this.mouseOneClickHandler);
         canvas.addEventListener("dblclick", this.mouseDoubleClickHandler);
-        canvas.addEventListener("mouseover", this.mouseOverHandler);
-        canvas.addEventListener("mouseleave", this.mouseLeaveHandler);
-    
+        canvas.addEventListener("mousemove", this.mouseOverHandler);
     }
 
-    public mouseLeaveHandler = (event: MouseEvent): void => {
-
-
+    public getMouseOverSprite(): AnimatedSprite {
+        return this.mouseOverSprite;
     }
 
     public mouseOverHandler = (event: MouseEvent): void => {
@@ -57,21 +56,10 @@ export class UIController {
         
         if (sprite != null) {
             console.log("Mousing over the sprite");
-            let sceneGraph: SceneGraph = this.scene;
-
-            let state = sprite.getState();
-            let worldX;
-            let worldY;
-            let frameCnt: Number = sprite.getFrameCounter();
-            let frameIndex: Number = sprite.getAnimationFrameIndex();
-            let detail = new TextToRender("Num Sprite", "", 20, 90, function() {
-                detail.text = `State: ${state} \n
-                                FrameCnt: ${frameCnt} \n
-                                FrameIndex: ${frameIndex}`;
-            });
-            textRenderer.addTextToRender(detail);
+            this.mouseOverSprite = sprite;
+        } else {
+            this.mouseOverSprite = null;
         }
-
     }
 
     public mouseDoubleClickHandler = (event: MouseEvent): void => {

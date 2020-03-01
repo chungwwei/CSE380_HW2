@@ -1,3 +1,4 @@
+import { UIController } from './../wolfie2d/ui/UIController';
 import { WebGLGameShader } from './../wolfie2d/rendering/WebGLGameShader';
 import { WebGLGameSpriteRenderer } from './../wolfie2d/rendering/WebGLGameSpriteRenderer';
 /*
@@ -173,6 +174,21 @@ class AnimatedSpriteDemo {
         });
         let textRenderer = game.getRenderingSystem().getTextRenderer();
         textRenderer.addTextToRender(numSpritesText);
+
+
+        let detail = new TextToRender("Detail", "", 20, 90, function() {
+                
+            let uiController: UIController = game.getUIController();
+            let sprite: AnimatedSprite = uiController.getMouseOverSprite();
+            if (sprite != null) {
+                detail.text = `State: ${sprite.getState()}\u00A0\u00A0\u00A0\u00A0
+                            FrameCnt: ${sprite.getFrameCounter()}\u00A0\u00A0\u00A0\u00A0
+                            FrameIndex: ${sprite.getAnimationFrameIndex()}`;
+            } else{
+                detail.text = "";
+            }
+        });
+        textRenderer.addTextToRender(detail);
     }
 }
 

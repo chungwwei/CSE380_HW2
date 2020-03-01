@@ -21,6 +21,10 @@ export class Game extends GameLoopTemplate {
         super();
     }
 
+    public getUIController(): UIController {
+        return this.uiController;
+    }
+
     public getRenderingSystem() : WebGLGameRenderingSystem {
         return this.renderingSystem;
     }
