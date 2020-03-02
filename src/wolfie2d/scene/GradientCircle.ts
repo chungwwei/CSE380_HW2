@@ -8,6 +8,7 @@ export class GradientCircle extends SceneObject {
     private r: number;
     private g: number;
     private b: number;
+    private color: number;
 
     private radius: number
 
@@ -16,8 +17,15 @@ export class GradientCircle extends SceneObject {
         this.width = width
         this.height = height
         this.radius = 20;
+        let max = 5;
+        let min = 0;
+        this.color = Math.random() * (max - min + 1) + min;
     }
 
+    public getColor(): number {
+        return this.color;
+    }
+    
     public getWidth(): number {
         return this.width;
     }

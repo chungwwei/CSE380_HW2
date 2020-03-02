@@ -13,6 +13,7 @@ var CircleDefaults = {
     A_VALUETOINTERPOLATE: "a_ValueToInterpolate",
     U_SPRITETRANSFORM: "u_SpriteTransform",
     VAL: "val",
+    U_OPTION: "option",
     NUM_VERTICES: 4,
     FLOATS_PER_VERTEX: 2,
     FLOATS_PER_TEXTURE_COORDINATE: 2,
@@ -46,6 +47,7 @@ export class WebGLGameCircleRenderer {
 
         var fragmentShaderSource = [
             'precision highp float;',
+            'uniform float option;',
             'varying vec2 val;',
             'void main() {',
                 'float R = 1.0;',
@@ -54,8 +56,29 @@ export class WebGLGameCircleRenderer {
                 'if (dist > R) {',
                     'discard;',
                 '}',
-                'gl_FragColor =', 
-                'vec4(0.0, 0.0, dist, alpha);',
+                'if (option < 1.0) {',
+                    'gl_FragColor =', 
+                    'vec4(0.0, 0.0, dist, alpha);',
+                '} else if(option < 2.0) {',
+                    'gl_FragColor =', 
+                    'vec4(0.0, dist, 0.0, alpha);',
+                '}',
+                'else if(option < 3.0) {',
+                    'gl_FragColor =', 
+                    'vec4(dist, 0.0, 0.0, alpha);',
+                '}',
+                'else if(option < 4.0) {',
+                    'gl_FragColor =', 
+                    'vec4(dist, dist, 0.0, alpha);',
+                '}',
+                'else if(option < 5.0) {',
+                    'gl_FragColor =', 
+                    'vec4(dist, 0.0, dist, alpha);',
+                '}',
+                'else if(option < 6.0) {',
+                    'gl_FragColor =', 
+                    'vec4(0.0, dist, dist, alpha);',
+                '}',
             '}'
         ].join('\n');
 
@@ -112,7 +135,7 @@ export class WebGLGameCircleRenderer {
         // this.loadUniformLocations(webGL, [SpriteDefaults.U_SPRITE_TRANSFORM, SpriteDefaults.U_SAMPLER, SpriteDefaults.U_TEX_COORD_FACTOR, SpriteDefaults.U_TEX_COORD_SHIFT]);
 
         this.loadAttributeLocations(webGL, [CircleDefaults.A_POSITION, CircleDefaults.A_VALUETOINTERPOLATE]);
-        this.loadUniformLocations(webGL, [CircleDefaults.U_SPRITETRANSFORM]);
+        this.loadUniformLocations(webGL, [CircleDefaults.U_SPRITETRANSFORM, CircleDefaults.U_OPTION]);
 
         // WE'LL USE THESE FOR TRANSOFMRING OBJECTS WHEN WE DRAW THEM
         this.spriteTransform = new Matrix(4, 4);
@@ -165,7 +188,10 @@ export class WebGLGameCircleRenderer {
                             canvasHeight : number, 
                             circle : GradientCircle) {
 
+
+
         // // CALCULATE HOW MUCH TO TRANSLATE THE QUAD PER THE SPRITE POSITION
+
         let spriteWidth : number = circle.getWidth();
         let spriteHeight : number = circle.getHeight();
         console.log("width: " + spriteHeight + " height: " + spriteHeight);
@@ -221,12 +247,17 @@ export class WebGLGameCircleRenderer {
             12);
         webGL.enableVertexAttribArray(a_ValueToInterpolateLocation);
 
+        let colorOption: number = circle.getColor();
+        console.log(colorOption);
+        let u_optionLocation: WebGLUniformLocation = this.webGLUniformLocations[CircleDefaults.U_OPTION];
+        webGL.uniform1f(u_optionLocation, colorOption);
+
 
         // USE THE UNIFORMS
         let u_SpriteTransformLocation : WebGLUniformLocation = this.webGLUniformLocations[CircleDefaults.U_SPRITETRANSFORM];
         webGL.uniformMatrix4fv(u_SpriteTransformLocation, false, this.spriteTransform.getData());
 
         // DRAW THE SPRITE AS A TRIANGLE STRIP USING 4 VERTICES, STARTING AT THE START OF THE ARRAY (index 0)
-        webGL.drawArrays(webGL.TRIANGLE_FAN, 0,  CircleDefaults.NUM_VERTICES);
+        webGL.drawArrays(webGL.TRIANGLE_FAN, 0, CircleDefaults.NUM_VERTICES);
     }
 }
