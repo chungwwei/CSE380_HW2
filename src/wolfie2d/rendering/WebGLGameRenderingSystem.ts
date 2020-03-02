@@ -1,3 +1,4 @@
+import { WebGLGameCircleRenderer } from './WebGLGameCircleRenderer';
 /*
  * This serves as the subsystem that manages all game rendering.
  */
@@ -5,12 +6,15 @@ import {TextRenderer} from './TextRenderer'
 import {WebGLGameSpriteRenderer} from './WebGLGameSpriteRenderer'
 import {AnimatedSprite} from '../scene/sprite/AnimatedSprite'
 import {WebGLGameTexture } from './WebGLGameTexture';
+import { GradientCircle } from '../scene/GradientCircle';
+import { SceneObject } from '../scene/SceneObject';
 
 export class WebGLGameRenderingSystem {
     private renderingCanvas : HTMLCanvasElement;
     private webGL : WebGLRenderingContext;
     private spriteRenderer : WebGLGameSpriteRenderer;
     private textRenderer : TextRenderer;
+    private circleRenderer: WebGLGameCircleRenderer;
     private canvasWidth : number;
     private canvasHeight : number;
 
@@ -36,6 +40,10 @@ export class WebGLGameRenderingSystem {
 
     public getTextRenderer() : TextRenderer {
         return this.textRenderer;
+    }
+
+    public getCircleRenderer(): WebGLGameCircleRenderer {
+        return this.circleRenderer;
     }
 
     public init(renderingCanvasId : string, textCanvasId : string) : void {
@@ -78,6 +86,9 @@ export class WebGLGameRenderingSystem {
         this.spriteRenderer = new WebGLGameSpriteRenderer();
         this.spriteRenderer.init(this.webGL);
         
+        this.circleRenderer = new WebGLGameCircleRenderer();
+        this.circleRenderer.init(this.webGL);
+
         // THIS WILL STORE OUR TEXT
         this.textRenderer = new TextRenderer(textCanvasId, "serif", 18, "#FFFF00");
     }
@@ -115,13 +126,27 @@ export class WebGLGameRenderingSystem {
         this.webGL.clearColor(r, g, b, a);
     }
 
-    public render(visibleSet : Array<AnimatedSprite>) : void {
+    public render(visibleSet : Array<SceneObject>) : void {
         // CLEAR THE CANVAS
         this.webGL.clear(this.webGL.COLOR_BUFFER_BIT | this.webGL.DEPTH_BUFFER_BIT);
         
+        let spriteSet = new Array();
+        let circleSet = new Array();
+        for (let v of visibleSet) {
+            if (v instanceof GradientCircle) {
+                circleSet.push(v)
+            } else {
+                spriteSet.push(v)
+            }
+        }
+        console.log("circle set size: " + circleSet.length)
+
         // RENDER THE SPRITES ON ONE CANVAS
-        this.spriteRenderer.renderAnimatedSprites(this.webGL, this.canvasWidth, this.canvasHeight, visibleSet);
+        this.spriteRenderer.renderAnimatedSprites(this.webGL, this.canvasWidth, this.canvasHeight, spriteSet);
         
+        // RENDER THE CIRCLES ON CANVAS
+        this.circleRenderer.renderGradientCircles(this.webGL, this.canvasWidth, this.canvasHeight, circleSet);
+
         // THEN THE TEXT ON ANOTHER OVERLAPPING CANVAS
         this.textRenderer.render();
     }

@@ -1,3 +1,4 @@
+import { GradientCircle } from './../scene/GradientCircle';
 import { AnimatedSpriteType } from './../scene/sprite/AnimatedSpriteType';
 import { ResourceManager } from './../files/ResourceManager';
 
@@ -22,6 +23,7 @@ export class UIController {
     private renderingSystem : WebGLGameRenderingSystem;
     private detail: TextToRender;
     private mouseOverSprite: AnimatedSprite;
+    private circleToDrag: GradientCircle;
 
     public constructor() {}
 
@@ -67,12 +69,15 @@ export class UIController {
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
+        let circle: GradientCircle  = this.scene.getCircleAt(mousePressX, mousePressY);
         console.log("mousePressX: " + mousePressX);
         console.log("mousePressY: " + mousePressY);
         console.log("sprite: " + sprite);
         if (sprite != null) {
             // Remove sprite
             this.scene.removeSprite(sprite);
+        } else if (circle != null) {
+            this.scene.removeCircle(circle);
         }
     }
 
@@ -88,7 +93,8 @@ export class UIController {
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
-        if (sprite == null) {
+        let circle : GradientCircle = this.scene.getCircleAt(mousePressX, mousePressY);
+        if (sprite == null && circle == null) {
 
             // randomly add a new sprite
             let max = 1;
@@ -101,7 +107,7 @@ export class UIController {
             let spriteToAdd : AnimatedSprite = new AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
             spriteToAdd.getPosition().set(mousePressX, mousePressY, 0.0, 1.0);
             this.scene.addAnimatedSprite(spriteToAdd);
-        }
+        } 
     }
 
     
@@ -110,6 +116,7 @@ export class UIController {
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
+        let circle : GradientCircle = this.scene.getCircleAt(mousePressX, mousePressY);
         console.log("mousePressX: " + mousePressX);
         console.log("mousePressY: " + mousePressY);
         console.log("sprite: " + sprite);
@@ -118,7 +125,11 @@ export class UIController {
             this.spriteToDrag = sprite;
             this.dragOffsetX = sprite.getPosition().getX() - mousePressX;
             this.dragOffsetY = sprite.getPosition().getY() - mousePressY;
-        } 
+        } else if (circle != null) {
+            this.circleToDrag = circle;
+            this.dragOffsetX = circle.getPosition().getX() - mousePressX;
+            this.dragOffsetY = circle.getPosition().getY() - mousePressY;
+        }
     }
     
     public mouseMoveHandler = (event : MouseEvent) : void => {
@@ -127,10 +138,16 @@ export class UIController {
                                                 event.clientY + this.dragOffsetY, 
                                                 this.spriteToDrag.getPosition().getZ(), 
                                                 this.spriteToDrag.getPosition().getW());
+        } else if (this.circleToDrag != null) {
+            this.circleToDrag.getPosition().set(event.clientX + this.dragOffsetX, 
+                event.clientY + this.dragOffsetY, 
+                this.circleToDrag.getPosition().getZ(), 
+                this.circleToDrag.getPosition().getW());
         }
     }
 
     public mouseUpHandler = (event : MouseEvent) : void => {
         this.spriteToDrag = null;
+        this.circleToDrag = null;
     }
 }

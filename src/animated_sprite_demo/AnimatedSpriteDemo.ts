@@ -1,3 +1,4 @@
+import { GradientCircle } from './../wolfie2d/scene/GradientCircle';
 import { UIController } from './../wolfie2d/ui/UIController';
 import { WebGLGameShader } from './../wolfie2d/rendering/WebGLGameShader';
 import { WebGLGameSpriteRenderer } from './../wolfie2d/rendering/WebGLGameSpriteRenderer';
@@ -14,6 +15,7 @@ import {WebGLGameRenderingSystem} from '../wolfie2d/rendering/WebGLGameRendering
 import {SceneGraph} from '../wolfie2d/scene/SceneGraph'
 import {AnimatedSprite} from '../wolfie2d/scene/sprite/AnimatedSprite'
 import {AnimatedSpriteType} from '../wolfie2d/scene/sprite/AnimatedSpriteType'
+
 
 // IN THIS EXAMPLE WE'LL HAVE 2 SPRITE TYPES THAT EACH HAVE THE SAME 2 STATES
 // AND WHERE EACH SPRITE TYPE HAS ITS OWN SPRITE SHEET
@@ -80,86 +82,20 @@ class AnimatedSpriteDemo {
         //     }
         // }
 
+        for (let i = 0; i < 5; i ++) {
+            let randomX : number = Math.floor(Math.random() * canvasWidth) - (200);
+            let randomY : number = Math.floor(Math.random() * canvasHeight) - (200);
+            let circleToAdd: GradientCircle = new GradientCircle(300, 300);
+            circleToAdd.getPosition().set(randomX, randomY, 0.0, 1.0);
+            scene.addGradientCircle(circleToAdd);
+        }
+
         // For gradient cirlce with shader
 
         // for (let j = 0; j < 5; j++) {
             let renderingSystem: WebGLGameRenderingSystem = game.getRenderingSystem();
             let spriteRenderer: WebGLGameSpriteRenderer = renderingSystem.getSpriteRenderer();
             let gl: WebGLRenderingContext = renderingSystem.getWebGL();
-
-            let shader: WebGLGameShader = spriteRenderer.getShader();
-            var vertexShaderText = [
-                'precision highp float;',
-                'attribute vec2 positions;',
-    
-                'void main() {',
-                'gl_Position = vec4(positions, 0.0, 1.0);',    
-                '}',
-            ].join('\n');
-
-            var fragmentShaderText =
-                [
-                'precision highp float;',
-                '',
-                'uniform vec4 color;',
-                'void main()',
-                '{',
-                '  gl_FragColor = vec4(1.0, 0, 0, 1.0);',
-                '}'
-                ].join('\n');
-            let vs = document.getElementById("standard-vs").innerHTML;
-            let fs = document.getElementById("standard-fs").innerHTML;
-            let vShader = shader.createShader(gl, gl.VERTEX_SHADER, vertexShaderText);
-            let fShader = shader.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderText);
-
-            
-            
-            // context is the gl
-            // let vShader: WebGLShader = shader.getVertexShader();
-            // let fShader: WebGLShader = shader.getFragmentShader();
-            // console.log("The v shader:" + vShader);
-            // var program: WebGLProgram = shader.getProgram();
-            var program: WebGLProgram = shader.createShaderProgram(gl, vShader, fShader);
-
-            // let positions = [];
-            // for (let i = 0; i < 100; i ++) {
-            //     positions.push(Math.cos(i * 2 * Math.PI / 100));
-            //     positions.push(Math.sin(i * 2 * Math.PI / 100));
-            // }
-
-            console.log("program:" + program);
-            gl.clearColor(0.2, 0.85, 0.9, 1.0);
-            // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            
-            let vertices = [
-                0.0,0.5, 
-                -0.5,-0.5, 
-                0.0,-0.5,
-            ]
-
-            var buffer = gl.createBuffer()
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-            // var color = gl.getUniformLocation(program, "color");
-            // gl.uniform4fv(color, [0, 1, 0, 1.0]);
-        
-            var position = gl.getAttribLocation(program, "positions")
-            console.log("position: " + position)
-            gl.useProgram(program);
-        
-            gl.enableVertexAttribArray(position)
-            gl.vertexAttribPointer(position, 
-                2, 
-                gl.FLOAT, 
-                false, 
-                2 * Float32Array.BYTES_PER_ELEMENT,
-                0
-            );
-            let g = gl.drawArrays(gl.TRIANGLES, 0, 3);
-            console.log(g);
-            console.log("Ending rendering gradient circles")
-        // }
     }
 
     
@@ -170,7 +106,7 @@ class AnimatedSpriteDemo {
     private buildText(game : Game) {
         let sceneGraph : SceneGraph = game.getSceneGraph();
         let numSpritesText = new TextToRender("Num Sprites", "", 20, 50, function() {
-            numSpritesText.text = "Number of Scene Objects: " + sceneGraph.getNumSprites();
+            numSpritesText.text = "Number of Scene Objects: " + sceneGraph.getTotalSceneNums();
         });
         let textRenderer = game.getRenderingSystem().getTextRenderer();
         textRenderer.addTextToRender(numSpritesText);
