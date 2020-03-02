@@ -24,6 +24,7 @@ export class UIController {
     private detail: TextToRender;
     private mouseOverSprite: AnimatedSprite;
     private circleToDrag: GradientCircle;
+    private mouseOverCircle: GradientCircle;
 
     public constructor() {}
 
@@ -49,18 +50,26 @@ export class UIController {
         return this.mouseOverSprite;
     }
 
+    public getMouseOverCircle(): GradientCircle {
+        return this.mouseOverCircle;
+    }
+
     public mouseOverHandler = (event: MouseEvent): void => {
         console.log("MOUSING OVER YO");
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
+        let circle: GradientCircle  = this.scene.getCircleAt(mousePressX, mousePressY);
         var textRenderer: TextRenderer = this.renderingSystem.getTextRenderer();
         
         if (sprite != null) {
             console.log("Mousing over the sprite");
             this.mouseOverSprite = sprite;
+        } else if (circle != null) {
+            this.mouseOverCircle = circle;
         } else {
             this.mouseOverSprite = null;
+            this.mouseOverCircle = null;
         }
     }
 

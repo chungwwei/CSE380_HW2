@@ -17,7 +17,7 @@ var CircleDefaults = {
     FLOATS_PER_VERTEX: 2,
     FLOATS_PER_TEXTURE_COORDINATE: 2,
     VERTEX_POSITION_OFFSET: 0,
-    TOTAL_BYTES: 16,
+    TOTAL_BYTES: 20,
     INDEX_OF_FIRST_VERTEX: 0
 }
 
@@ -63,7 +63,7 @@ export class WebGLGameCircleRenderer {
             'precision highp float;',
             'attribute vec4 a_Position;',
             'attribute vec2 a_ValueToInterpolate;',
-            'varying vec2 val;',
+            'varying vec2 val;',    
             'uniform mat4 u_SpriteTransform;',
             
             'void main() {',
@@ -83,18 +83,14 @@ export class WebGLGameCircleRenderer {
         // GET THE webGL OBJECT TO USE
         var verticesTexCoords = new Float32Array([
             // 
-            -0.5,  0.5, 0.0, 0.0,
-            -0.5, -0.5, 0.0, 1.0,
-             0.5,  0.5, 1.0, 0.0,
-             0.5, -0.5, 1.0, 1.0
-        
+            right, bottom, 0, 1.0, -1.0,
+            right, top, 0, 1.0, 1.0,
+            left, top, 0, -1.0, 1.0,
+            left, bottom, 0, -1.0, -1.0,
         ]);
 
         var val = new Float32Array([
-            1.0, -1.0,
-            1.0, 1.0,
-            -1.0,1.0,
-            -1.0,-1.0,
+            0.5, 0.2
         ])
 
         // CREATE THE BUFFER ON THE GPU
@@ -208,21 +204,21 @@ export class WebGLGameCircleRenderer {
         let a_PositionLocation : GLuint = this.webGLAttributeLocations[CircleDefaults.A_POSITION];
         webGL.vertexAttribPointer(
             a_PositionLocation, 
-            CircleDefaults.FLOATS_PER_TEXTURE_COORDINATE, 
+            3, 
             webGL.FLOAT, 
             false, 
-            CircleDefaults.TOTAL_BYTES, 
-            CircleDefaults.VERTEX_POSITION_OFFSET);
+            20, 
+            0);
         webGL.enableVertexAttribArray(a_PositionLocation);
 
         let a_ValueToInterpolateLocation: GLuint = this.webGLAttributeLocations[CircleDefaults.A_VALUETOINTERPOLATE];
         webGL.vertexAttribPointer(
             a_ValueToInterpolateLocation, 
-            CircleDefaults.FLOATS_PER_TEXTURE_COORDINATE, 
+            2, 
             webGL.FLOAT, 
             false, 
-            16, 
-            0);
+            20, 
+            12);
         webGL.enableVertexAttribArray(a_ValueToInterpolateLocation);
 
 
@@ -231,6 +227,6 @@ export class WebGLGameCircleRenderer {
         webGL.uniformMatrix4fv(u_SpriteTransformLocation, false, this.spriteTransform.getData());
 
         // DRAW THE SPRITE AS A TRIANGLE STRIP USING 4 VERTICES, STARTING AT THE START OF THE ARRAY (index 0)
-        webGL.drawArrays(webGL.TRIANGLE_STRIP, CircleDefaults.INDEX_OF_FIRST_VERTEX, CircleDefaults.NUM_VERTICES);
+        webGL.drawArrays(webGL.TRIANGLE_FAN, 0,  CircleDefaults.NUM_VERTICES);
     }
 }
