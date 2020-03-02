@@ -103,20 +103,31 @@ export class UIController {
         let mousePressY : number = event.clientY;
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
         let circle : GradientCircle = this.scene.getCircleAt(mousePressX, mousePressY);
-        if (sprite == null && circle == null) {
+        var ResourceManager: ResourceManager = game.getResourceManager();
+        let max = 1;
+        let min = 0;
+        let k  = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (k < 1) {
+            if (sprite == null && circle == null) {
+                // randomly add a new sprite
+                let max = 1;
+                let min = 0;
+                let i  = Math.floor(Math.random() * (max - min + 1)) + min;
+                console.log("adding sprite operation");
+                let spriteTypeToUse : string = DEMO_SPRITE_TYPES[i];
+                let animatedSpriteType : AnimatedSpriteType = ResourceManager.getAnimatedSpriteTypeById(spriteTypeToUse);
+                let spriteToAdd : AnimatedSprite = new AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
+                spriteToAdd.getPosition().set(mousePressX, mousePressY, 0.0, 1.0);
+                this.scene.addAnimatedSprite(spriteToAdd);
+            } 
+        } else {
+            if (sprite == null && circle == null) {
+                let circleToAdd: GradientCircle = new GradientCircle(300, 300);
+                circleToAdd.getPosition().set(mousePressX, mousePressY, 0.0, 1.0);
+                this.scene.addGradientCircle(circleToAdd);
+            }
+        }
 
-            // randomly add a new sprite
-            let max = 1;
-            let min = 0;
-            let i  = Math.floor(Math.random() * (max - min + 1)) + min;
-            console.log("adding sprite operation");
-            let spriteTypeToUse : string = DEMO_SPRITE_TYPES[i];
-            let ResourceManager: ResourceManager = game.getResourceManager();
-            let animatedSpriteType : AnimatedSpriteType = ResourceManager.getAnimatedSpriteTypeById(spriteTypeToUse);
-            let spriteToAdd : AnimatedSprite = new AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
-            spriteToAdd.getPosition().set(mousePressX, mousePressY, 0.0, 1.0);
-            this.scene.addAnimatedSprite(spriteToAdd);
-        } 
     }
 
     
