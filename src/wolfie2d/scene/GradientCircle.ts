@@ -25,7 +25,7 @@ export class GradientCircle extends SceneObject {
     public getColor(): number {
         return this.color;
     }
-    
+
     public getWidth(): number {
         return this.width;
     }
@@ -52,6 +52,10 @@ export class GradientCircle extends SceneObject {
         else {
             return true;
         }
+    }
+
+    public toString(): string {
+        return `(${this.getPosition().getX()}, ${this.getPosition().getY()})`
     }
 
     

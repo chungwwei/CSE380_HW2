@@ -1,3 +1,4 @@
+import { game } from './../../animated_sprite_demo/AnimatedSpriteDemo';
 import { GradientCircle } from './../scene/GradientCircle';
 import { AnimatedSpriteType } from './../scene/sprite/AnimatedSpriteType';
 import { ResourceManager } from './../files/ResourceManager';
@@ -10,7 +11,7 @@ import {AnimatedSprite} from "../scene/sprite/AnimatedSprite"
 import {SceneGraph} from "../scene/SceneGraph"
 import { TextToRender, TextRenderer } from './../rendering/TextRenderer';
 import { WebGLGameRenderingSystem } from './../rendering/WebGLGameRenderingSystem';
-import { game } from '../../animated_sprite_demo/AnimatedSpriteDemo';
+
 
 
 
@@ -25,6 +26,9 @@ export class UIController {
     private mouseOverSprite: AnimatedSprite;
     private circleToDrag: GradientCircle;
     private mouseOverCircle: GradientCircle;
+
+    private mouseX: number;
+    private mouseY: number;
 
     public constructor() {}
 
@@ -46,6 +50,14 @@ export class UIController {
         canvas.addEventListener("mousemove", this.mouseOverHandler);
     }
 
+    public getMouseX(): number {
+        return this.mouseX;
+    }
+
+    public getMouseY(): number {
+        return this.mouseY;
+    }
+
     public getMouseOverSprite(): AnimatedSprite {
         return this.mouseOverSprite;
     }
@@ -61,6 +73,8 @@ export class UIController {
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
         let circle: GradientCircle  = this.scene.getCircleAt(mousePressX, mousePressY);
         var textRenderer: TextRenderer = this.renderingSystem.getTextRenderer();
+        this.mouseX = event.clientX;
+        this.mouseY = event.clientY;
         
         if (sprite != null) {
             console.log("Mousing over the sprite");

@@ -112,9 +112,9 @@ export class WebGLGameCircleRenderer {
             left, bottom, 0, -1.0, -1.0,
         ]);
 
-        var val = new Float32Array([
-            0.5, 0.2
-        ])
+        // var val = new Float32Array([
+        //     0.5, 0.2
+        // ])
 
         // CREATE THE BUFFER ON THE GPU
         this.vertexTexCoordBuffer = webGL.createBuffer();

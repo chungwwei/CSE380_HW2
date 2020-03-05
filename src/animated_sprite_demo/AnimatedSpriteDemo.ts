@@ -116,11 +116,14 @@ class AnimatedSpriteDemo {
                 
             let uiController: UIController = game.getUIController();
             let sprite: AnimatedSprite = uiController.getMouseOverSprite();
+            let circle: GradientCircle = uiController.getMouseOverCircle();
+            let x: number = uiController.getMouseX();
+            let y: number = uiController.getMouseY();
             if (sprite != null) {
-                detail.text = `State: ${sprite.getState()}\u00A0\u00A0\u00A0\u00A0
-                            FrameCnt: ${sprite.getFrameCounter()}\u00A0\u00A0\u00A0\u00A0
-                            FrameIndex: ${sprite.getAnimationFrameIndex()}`;
-            } else{
+                detail.text = `MouseX: ${x}, MouseY: ${y}  position:` + sprite.toString();
+            } else if (circle != null) {
+                detail.text = `MouseX: ${x}, MouseY: ${y}  position` + circle.toString();;
+            } else {
                 detail.text = "";
             }
         });
