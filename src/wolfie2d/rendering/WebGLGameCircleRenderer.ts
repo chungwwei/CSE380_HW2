@@ -97,24 +97,14 @@ export class WebGLGameCircleRenderer {
         ].join('\n');
         
         this.shader.init(webGL, vertexShaderSrc, fragmentShaderSource);
-
-
-        let right = 0.5;
-        let bottom = -0.5;
-        let left = -0.5;
-        let top = 0.5;
+        
         // GET THE webGL OBJECT TO USE
         var verticesTexCoords = new Float32Array([
-            // 
-            right, bottom, 0, 1.0, -1.0,
-            right, top, 0, 1.0, 1.0,
-            left, top, 0, -1.0, 1.0,
-            left, bottom, 0, -1.0, -1.0,
+            0.5, -0.5, 0.0, 1.0, -1.0,
+            0.5, 0.5, 0.0, 1.0, 1.0,
+            -0.5,0.5,0.0,-1.0, 1.0,
+            -0.5,-0.5,0.0,-1.0,-1.0,
         ]);
-
-        // var val = new Float32Array([
-        //     0.5, 0.2
-        // ])
 
         // CREATE THE BUFFER ON THE GPU
         this.vertexTexCoordBuffer = webGL.createBuffer();
