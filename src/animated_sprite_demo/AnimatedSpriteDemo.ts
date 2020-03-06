@@ -71,17 +71,17 @@ class AnimatedSpriteDemo {
         let canvasHeight : number = (<HTMLCanvasElement>document.getElementById("game_canvas")).height;
 
         // BUILD A BUNCH OF CIRCLE SPRITES
-        // for (let i = 0; i < DEMO_SPRITE_TYPES.length; i++) {
-        //     for (let j = 0; j < 5; j++) {
-        //         let spriteTypeToUse : string = DEMO_SPRITE_TYPES[i];
-        //         let animatedSpriteType : AnimatedSpriteType = resourceManager.getAnimatedSpriteTypeById(spriteTypeToUse);
-        //         let spriteToAdd : AnimatedSprite = new AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
-        //         let randomX : number = Math.floor(Math.random() * canvasWidth) - (animatedSpriteType.getSpriteWidth()/2);
-        //         let randomY : number = Math.floor(Math.random() * canvasHeight) - (animatedSpriteType.getSpriteHeight()/2);
-        //         spriteToAdd.getPosition().set(randomX, randomY, 0.0, 1.0);
-        //         scene.addAnimatedSprite(spriteToAdd);
-        //     }
-        // }
+        for (let i = 0; i < DEMO_SPRITE_TYPES.length; i++) {
+            for (let j = 0; j < 5; j++) {
+                let spriteTypeToUse : string = DEMO_SPRITE_TYPES[i];
+                let animatedSpriteType : AnimatedSpriteType = resourceManager.getAnimatedSpriteTypeById(spriteTypeToUse);
+                let spriteToAdd : AnimatedSprite = new AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
+                let randomX : number = Math.floor(Math.random() * canvasWidth) - (animatedSpriteType.getSpriteWidth()/2);
+                let randomY : number = Math.floor(Math.random() * canvasHeight) - (animatedSpriteType.getSpriteHeight()/2);
+                spriteToAdd.getPosition().set(randomX, randomY, 0.0, 1.0);
+                scene.addAnimatedSprite(spriteToAdd);
+            }
+        }
 
         for (let i = 0; i < 5; i ++) {
             let randomX : number = Math.floor(Math.random() * canvasWidth) - (200);
