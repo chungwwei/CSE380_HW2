@@ -11,6 +11,7 @@ import {AnimatedSprite} from "../scene/sprite/AnimatedSprite"
 import {SceneGraph} from "../scene/SceneGraph"
 import { TextToRender, TextRenderer } from './../rendering/TextRenderer';
 import { WebGLGameRenderingSystem } from './../rendering/WebGLGameRenderingSystem';
+import { SceneObject } from '../scene/SceneObject';
 
 
 
@@ -26,6 +27,7 @@ export class UIController {
     private mouseOverSprite: AnimatedSprite;
     private circleToDrag: GradientCircle;
     private mouseOverCircle: GradientCircle;
+    private mouseOverObj: SceneObject;
 
     private mouseX: number;
     private mouseY: number;
@@ -66,42 +68,58 @@ export class UIController {
         return this.mouseOverCircle;
     }
 
+    public getMouseOverObj(): SceneObject {
+        return this.mouseOverObj;
+    }
+
     public mouseOverHandler = (event: MouseEvent): void => {
         console.log("MOUSING OVER YO");
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
         let circle: GradientCircle  = this.scene.getCircleAt(mousePressX, mousePressY);
+        let obj: SceneObject = this.scene.getObjAt(mousePressX, mousePressY);
         var textRenderer: TextRenderer = this.renderingSystem.getTextRenderer();
         this.mouseX = event.clientX;
         this.mouseY = event.clientY;
-        
-        if (sprite != null) {
-            console.log("Mousing over the sprite");
-            this.mouseOverSprite = sprite;
-        } else if (circle != null) {
-            this.mouseOverCircle = circle;
+
+        if (obj != null) {
+            this.mouseOverObj = obj;
         } else {
-            this.mouseOverSprite = null;
-            this.mouseOverCircle = null;
+            this.mouseOverObj = null;
         }
+    
+
+        // if (sprite != null) {
+        //     console.log("Mousing over the sprite");
+        //     this.mouseOverSprite = sprite;
+        // } else if (circle != null) {
+        //     this.mouseOverCircle = circle;
+        // } else {
+        //     this.mouseOverSprite = null;
+        //     this.mouseOverCircle = null;
+        // }
     }
 
     public mouseDoubleClickHandler = (event: MouseEvent): void => {
         console.log("removing operation");
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
+        let obj: SceneObject = this.scene.getObjAt(mousePressX, mousePressY);
         let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
         let circle: GradientCircle  = this.scene.getCircleAt(mousePressX, mousePressY);
         console.log("mousePressX: " + mousePressX);
         console.log("mousePressY: " + mousePressY);
         console.log("sprite: " + sprite);
-        if (sprite != null) {
-            // Remove sprite
-            this.scene.removeSprite(sprite);
-        } else if (circle != null) {
-            this.scene.removeCircle(circle);
-        }
+        if (obj != null) {
+            this.scene.removeObj(obj);
+        }      
+        // if (sprite != null) {
+        //     // Remove sprite
+        //     this.scene.removeSprite(sprite);
+        // } else if (circle != null) {
+        //     this.scene.removeCircle(circle);
+        // }
     }
 
     public mouseOneClickHandler = (event: MouseEvent): void => {

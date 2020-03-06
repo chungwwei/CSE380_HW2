@@ -15,6 +15,7 @@ import {WebGLGameRenderingSystem} from '../wolfie2d/rendering/WebGLGameRendering
 import {SceneGraph} from '../wolfie2d/scene/SceneGraph'
 import {AnimatedSprite} from '../wolfie2d/scene/sprite/AnimatedSprite'
 import {AnimatedSpriteType} from '../wolfie2d/scene/sprite/AnimatedSpriteType'
+import { SceneObject } from '../wolfie2d/scene/SceneObject';
 
 
 // IN THIS EXAMPLE WE'LL HAVE 2 SPRITE TYPES THAT EACH HAVE THE SAME 2 STATES
@@ -117,12 +118,14 @@ class AnimatedSpriteDemo {
             let uiController: UIController = game.getUIController();
             let sprite: AnimatedSprite = uiController.getMouseOverSprite();
             let circle: GradientCircle = uiController.getMouseOverCircle();
+            let obj: SceneObject = uiController.getMouseOverObj();
+
             let x: number = uiController.getMouseX();
             let y: number = uiController.getMouseY();
-            if (sprite != null) {
-                detail.text = `MouseX: ${x}, MouseY: ${y}  position:` + sprite.toString();
-            } else if (circle != null) {
-                detail.text = `MouseX: ${x}, MouseY: ${y}  position` + circle.toString();;
+            if (obj != null && obj instanceof AnimatedSprite) {
+                detail.text = `MouseX: ${x}, MouseY: ${y}  position:` + obj.toString();
+            } else if (obj != null && obj instanceof GradientCircle) {
+                detail.text = `MouseX: ${x}, MouseY: ${y}  position` + obj.toString();;
             } else {
                 detail.text = "";
             }

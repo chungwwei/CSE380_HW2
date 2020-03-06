@@ -39,20 +39,44 @@ export class SceneGraph {
         this.graidentCircles.push(cirlce);
     }
 
-    public getSpriteAt(testX : number, testY : number) : AnimatedSprite {
-        for (let sprite of this.animatedSprites) {
-            if (sprite.contains(testX, testY))
-                return sprite;
+    public getObjAt(testX : number, testY : number): SceneObject {
+        let k: number = this.visibleSet.length - 1;
+        let i: number;
+        for (i = k; i >= 0; i --) {
+            if (this.visibleSet[i].contains(testX, testY))
+                return this.visibleSet[i];
         }
-        return null;
+        return null
+    }
+
+    public getSpriteAt(testX : number, testY : number) : AnimatedSprite {
+        // for (let sprite of this.animatedSprites) {
+        //     if (sprite.contains(testX, testY))
+        //         return sprite;
+        // }
+        // return null;
+        let k: number = this.animatedSprites.length - 1;
+        let i: number;
+        for (i = k; i >= 0; i --) {
+            if (this.animatedSprites[i].contains(testX, testY))
+                return this.animatedSprites[i];
+        }
+        return null
     }
 
     public getCircleAt(testX: number, testY: number): GradientCircle {
-        for (let c of this.graidentCircles) {
-            if (c.contains(testX, testY))
-                return c
+        // for (let c of this.graidentCircles) {
+        //     if (c.contains(testX, testY))
+        //         return c
+        // }
+        // return null;
+        let i: number;
+        let k  = this.graidentCircles.length - 1;
+        for (i= k; i >= 0; i --) {
+            if (this.graidentCircles[i].contains(testX, testY))
+                return this.graidentCircles[i];
         }
-        return null;
+        return null
     }
 
     public getAnimatedSprites(): Array<AnimatedSprite> {    
@@ -74,6 +98,13 @@ export class SceneGraph {
         this.graidentCircles = newArr;
     }
 
+    public removeObj(obj: SceneObject): void {
+        if (obj instanceof GradientCircle) { 
+            this.removeCircle(obj as GradientCircle);
+        } else if (obj instanceof AnimatedSprite) {
+            this.removeSprite((obj as AnimatedSprite));
+        }
+    }
 
     public removeSprite(sprite: AnimatedSprite): void {
         console.log("removing function is called")
