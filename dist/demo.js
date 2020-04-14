@@ -6,6 +6,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var GradientCircle_1 = require("./../wolfie2d/scene/GradientCircle");
 /*
  * AnimatedSpriteDemo.ts - demonstrates some simple sprite rendering and
  * animation as well as some basic mouse interactions. Note that the
@@ -76,6 +77,18 @@ var AnimatedSpriteDemo = function () {
                     scene.addAnimatedSprite(spriteToAdd);
                 }
             }
+            for (var _i = 0; _i < 5; _i++) {
+                var _randomX = Math.floor(Math.random() * canvasWidth) - 200;
+                var _randomY = Math.floor(Math.random() * canvasHeight) - 200;
+                var circleToAdd = new GradientCircle_1.GradientCircle(300, 300);
+                circleToAdd.getPosition().set(_randomX, _randomY, 0.0, 1.0);
+                scene.addGradientCircle(circleToAdd);
+            }
+            // For gradient cirlce with shader
+            // for (let j = 0; j < 5; j++) {
+            var renderingSystem = exports.game.getRenderingSystem();
+            var spriteRenderer = renderingSystem.getSpriteRenderer();
+            var gl = renderingSystem.getWebGL();
         }
         /*
          * Builds all the text to be displayed in the application.
@@ -86,10 +99,27 @@ var AnimatedSpriteDemo = function () {
         value: function buildText(game) {
             var sceneGraph = game.getSceneGraph();
             var numSpritesText = new TextRenderer_1.TextToRender("Num Sprites", "", 20, 50, function () {
-                numSpritesText.text = "Number of Scene Objects: " + sceneGraph.getNumSprites();
+                numSpritesText.text = "Number of Scene Objects: " + sceneGraph.getTotalSceneNums();
             });
             var textRenderer = game.getRenderingSystem().getTextRenderer();
             textRenderer.addTextToRender(numSpritesText);
+            var detail = new TextRenderer_1.TextToRender("Detail", "", 20, 90, function () {
+                var uiController = game.getUIController();
+                var sprite = uiController.getMouseOverSprite();
+                var circle = uiController.getMouseOverCircle();
+                var obj = uiController.getMouseOverObj();
+                var x = uiController.getMouseX();
+                var y = uiController.getMouseY();
+                if (obj != null && obj instanceof AnimatedSprite_1.AnimatedSprite) {
+                    detail.text = "MouseX: " + x + ", MouseY: " + y + "  position:" + obj.toString();
+                } else if (obj != null && obj instanceof GradientCircle_1.GradientCircle) {
+                    detail.text = "MouseX: " + x + ", MouseY: " + y + "  position" + obj.toString();
+                    ;
+                } else {
+                    detail.text = "";
+                }
+            });
+            textRenderer.addTextToRender(detail);
         }
     }]);
 
@@ -99,16 +129,16 @@ var AnimatedSpriteDemo = function () {
 // THE Game OBJECT AND INITIALIZE IT WITH THE CANVASES
 
 
-var game = new Game_1.Game();
-game.init("game_canvas", "text_canvas");
+exports.game = new Game_1.Game();
+exports.game.init("game_canvas", "text_canvas");
 // BUILD THE GAME SCENE
 var demo = new AnimatedSpriteDemo();
-demo.buildTestScene(game, function () {
+demo.buildTestScene(exports.game, function () {
     // AND START THE GAME LOOP
-    game.start();
+    exports.game.start();
 });
 
-},{"../wolfie2d/Game":2,"../wolfie2d/rendering/TextRenderer":8,"../wolfie2d/scene/sprite/AnimatedSprite":15}],2:[function(require,module,exports){
+},{"../wolfie2d/Game":2,"../wolfie2d/rendering/TextRenderer":8,"../wolfie2d/scene/sprite/AnimatedSprite":17,"./../wolfie2d/scene/GradientCircle":14}],2:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -148,6 +178,11 @@ var Game = function (_GameLoopTemplate_1$G) {
     }
 
     _createClass(Game, [{
+        key: "getUIController",
+        value: function getUIController() {
+            return this.uiController;
+        }
+    }, {
         key: "getRenderingSystem",
         value: function getRenderingSystem() {
             return this.renderingSystem;
@@ -166,7 +201,7 @@ var Game = function (_GameLoopTemplate_1$G) {
         key: "init",
         value: function init(gameCanvasId, textCanvasId) {
             this.renderingSystem.init(gameCanvasId, textCanvasId);
-            this.uiController.init(gameCanvasId, this.sceneGraph);
+            this.uiController.init(gameCanvasId, this.sceneGraph, this.getRenderingSystem());
         }
     }, {
         key: "begin",
@@ -213,7 +248,7 @@ var Game = function (_GameLoopTemplate_1$G) {
 
 exports.Game = Game;
 
-},{"./files/ResourceManager":3,"./loop/GameLoopTemplate":4,"./rendering/WebGLGameRenderingSystem":9,"./scene/SceneGraph":13,"./ui/UIController":17}],3:[function(require,module,exports){
+},{"./files/ResourceManager":3,"./loop/GameLoopTemplate":4,"./rendering/WebGLGameRenderingSystem":10,"./scene/SceneGraph":15,"./ui/UIController":19}],3:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -407,7 +442,7 @@ var ResourceManager = function () {
 
 exports.ResourceManager = ResourceManager;
 
-},{"../rendering/WebGLGameTexture":12,"../scene/sprite/AnimatedSpriteType":16}],4:[function(require,module,exports){
+},{"../rendering/WebGLGameTexture":13,"../scene/sprite/AnimatedSpriteType":18}],4:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1517,11 +1552,193 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var WebGLGameShader_1 = require("./WebGLGameShader");
+var MathUtilities_1 = require("../math/MathUtilities");
+var Matrix_1 = require("../math/Matrix");
+var Vector3_1 = require("../math/Vector3");
+var CircleDefaults = {
+    A_POSITION: "a_Position",
+    A_VALUETOINTERPOLATE: "a_ValueToInterpolate",
+    U_SPRITETRANSFORM: "u_SpriteTransform",
+    VAL: "val",
+    U_OPTION: "option",
+    NUM_VERTICES: 4,
+    FLOATS_PER_VERTEX: 2,
+    FLOATS_PER_TEXTURE_COORDINATE: 2,
+    VERTEX_POSITION_OFFSET: 0,
+    TOTAL_BYTES: 20,
+    INDEX_OF_FIRST_VERTEX: 0
+};
+
+var WebGLGameCircleRenderer = function () {
+    function WebGLGameCircleRenderer() {
+        _classCallCheck(this, WebGLGameCircleRenderer);
+    }
+
+    _createClass(WebGLGameCircleRenderer, [{
+        key: "getShader",
+        value: function getShader() {
+            return this.shader;
+        }
+    }, {
+        key: "init",
+        value: function init(webGL) {
+            this.shader = new WebGLGameShader_1.WebGLGameShader();
+            var fragmentShaderSource = ['precision highp float;', 'uniform float option;', 'varying vec2 val;', 'void main() {', 'float R = 1.0;', 'float dist = sqrt(dot(val, val));', 'float alpha = 1.0;', 'if (dist > R) {', 'discard;', '}', 'if (option < 1.0) {', 'gl_FragColor =', 'vec4(0.0, 0.0, dist, alpha);', '} else if(option < 2.0) {', 'gl_FragColor =', 'vec4(0.0, dist, 0.0, alpha);', '}', 'else if(option < 3.0) {', 'gl_FragColor =', 'vec4(dist, 0.0, 0.0, alpha);', '}', 'else if(option < 4.0) {', 'gl_FragColor =', 'vec4(dist, dist, 0.0, alpha);', '}', 'else if(option < 5.0) {', 'gl_FragColor =', 'vec4(dist, 0.0, dist, alpha);', '}', 'else if(option < 6.0) {', 'gl_FragColor =', 'vec4(0.0, dist, dist, alpha);', '}', '}'].join('\n');
+            var vertexShaderSrc = ['precision highp float;', 'attribute vec4 a_Position;', 'attribute vec2 a_ValueToInterpolate;', 'varying vec2 val;', 'uniform mat4 u_SpriteTransform;', 'void main() {', 'val = a_ValueToInterpolate;', '    gl_Position = u_SpriteTransform', '            * a_Position;', '}'].join('\n');
+            this.shader.init(webGL, vertexShaderSrc, fragmentShaderSource);
+            // GET THE webGL OBJECT TO USE
+            var verticesTexCoords = new Float32Array([0.5, -0.5, 0.0, 1.0, -1.0, 0.5, 0.5, 0.0, 1.0, 1.0, -0.5, 0.5, 0.0, -1.0, 1.0, -0.5, -0.5, 0.0, -1.0, -1.0]);
+            // CREATE THE BUFFER ON THE GPU
+            this.vertexTexCoordBuffer = webGL.createBuffer();
+            this.valBuffer = webGL.createBuffer();
+            // BIND THE BUFFER TO BE VERTEX DATA
+            webGL.bindBuffer(webGL.ARRAY_BUFFER, this.vertexTexCoordBuffer);
+            // webGL.bindBuffer(webGL.ARRAY_BUFFER, this.valBuffer);
+            // AND SEND THE DATA TO THE BUFFER WE CREATED ON THE GPU
+            webGL.bufferData(webGL.ARRAY_BUFFER, verticesTexCoords, webGL.STATIC_DRAW);
+            // webGL.bufferData(webGL.ARRAY_BUFFER, val, webGL.STATIC_DRAW)
+            // SETUP THE SHADER ATTRIBUTES AND UNIFORMS
+            this.webGLAttributeLocations = {};
+            this.webGLUniformLocations = {};
+            // this.loadAttributeLocations(webGL, [SpriteDefaults.A_POSITION, SpriteDefaults.A_TEX_COORD]);
+            // this.loadUniformLocations(webGL, [SpriteDefaults.U_SPRITE_TRANSFORM, SpriteDefaults.U_SAMPLER, SpriteDefaults.U_TEX_COORD_FACTOR, SpriteDefaults.U_TEX_COORD_SHIFT]);
+            this.loadAttributeLocations(webGL, [CircleDefaults.A_POSITION, CircleDefaults.A_VALUETOINTERPOLATE]);
+            this.loadUniformLocations(webGL, [CircleDefaults.U_SPRITETRANSFORM, CircleDefaults.U_OPTION]);
+            // WE'LL USE THESE FOR TRANSOFMRING OBJECTS WHEN WE DRAW THEM
+            this.spriteTransform = new Matrix_1.Matrix(4, 4);
+            this.spriteTranslate = new Vector3_1.Vector3();
+            this.spriteRotate = new Vector3_1.Vector3();
+            this.spriteScale = new Vector3_1.Vector3();
+        }
+    }, {
+        key: "renderGradientCircle",
+        value: function renderGradientCircle(webGL, canvasWidth, canvasHeight) {
+            var shaderProgramToUse = this.shader.getProgram();
+            webGL.useProgram(shaderProgramToUse);
+        }
+    }, {
+        key: "renderGradientCircles",
+        value: function renderGradientCircles(webGL, canvasWidth, canvasHeight, visibleSet) {
+            // SELECT THE ANIMATED SPRITE RENDERING SHADER PROGRAM FOR USE
+            var shaderProgramToUse = this.shader.getProgram();
+            webGL.useProgram(shaderProgramToUse);
+            // AND THEN RENDER EACH ONE
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = visibleSet[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var circle = _step.value;
+
+                    this.renderCircle(webGL, canvasWidth, canvasHeight, circle);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }, {
+        key: "loadAttributeLocations",
+        value: function loadAttributeLocations(webGL, attributeLocationNames) {
+            for (var i = 0; i < attributeLocationNames.length; i++) {
+                var locationName = attributeLocationNames[i];
+                var location = webGL.getAttribLocation(this.shader.getProgram(), locationName);
+                this.webGLAttributeLocations[locationName] = location;
+            }
+        }
+    }, {
+        key: "loadUniformLocations",
+        value: function loadUniformLocations(webGL, uniformLocationNames) {
+            for (var i = 0; i < uniformLocationNames.length; i++) {
+                var locationName = uniformLocationNames[i];
+                var location = webGL.getUniformLocation(this.shader.getProgram(), locationName);
+                this.webGLUniformLocations[locationName] = location;
+            }
+        }
+    }, {
+        key: "renderCircle",
+        value: function renderCircle(webGL, canvasWidth, canvasHeight, circle) {
+            // // CALCULATE HOW MUCH TO TRANSLATE THE QUAD PER THE SPRITE POSITION
+            var spriteWidth = circle.getWidth();
+            var spriteHeight = circle.getHeight();
+            console.log("width: " + spriteHeight + " height: " + spriteHeight);
+            var spriteXInPixels = circle.getPosition().getX() + spriteWidth / 2;
+            var spriteYInPixels = circle.getPosition().getY() + spriteHeight / 2;
+            var spriteXTranslate = (spriteXInPixels - canvasWidth / 2) / (canvasWidth / 2);
+            var spriteYTranslate = (spriteYInPixels - canvasHeight / 2) / (canvasHeight / 2);
+            this.spriteTranslate.setX(spriteXTranslate);
+            this.spriteTranslate.setY(-spriteYTranslate);
+            // CALCULATE HOW MUCH TO SCALE THE QUAD PER THE SPRITE SIZE
+            var defaultWidth = canvasWidth / 2;
+            var defaultHeight = canvasHeight / 2;
+            var scaleX = spriteWidth / defaultWidth;
+            var scaleY = spriteHeight / defaultHeight;
+            this.spriteScale.setX(scaleX);
+            this.spriteScale.setY(scaleY);
+            // @todo - COMBINE THIS WITH THE ROTATE AND SCALE VALUES FROM THE SPRITE
+            MathUtilities_1.MathUtilities.identity(this.spriteTransform);
+            MathUtilities_1.MathUtilities.model(this.spriteTransform, this.spriteTranslate, this.spriteRotate, this.spriteScale);
+            // FIGURE OUT THE TEXTURE COORDINATE FACTOR AND SHIFT
+            // let texCoordFactorX : number = spriteWidth/texture.width;
+            // let texCoordFactorY : number = spriteHeight/texture.height;
+            // let spriteLeft : number = sprite.getLeft();
+            // let spriteTop : number = sprite.getTop();
+            // let texCoordShiftX : number = spriteLeft/texture.width;
+            // let texCoordShiftY : number = spriteTop/texture.height;   
+            // USE THE ATTRIBUTES
+            webGL.bindBuffer(webGL.ARRAY_BUFFER, this.vertexTexCoordBuffer);
+            // webGL.bindTexture(webGL.TEXTURE_2D, texture.webGLTexture);
+            // HOOK UP THE ATTRIBUTES
+            var a_PositionLocation = this.webGLAttributeLocations[CircleDefaults.A_POSITION];
+            webGL.vertexAttribPointer(a_PositionLocation, 3, webGL.FLOAT, false, 20, 0);
+            webGL.enableVertexAttribArray(a_PositionLocation);
+            var a_ValueToInterpolateLocation = this.webGLAttributeLocations[CircleDefaults.A_VALUETOINTERPOLATE];
+            webGL.vertexAttribPointer(a_ValueToInterpolateLocation, 2, webGL.FLOAT, false, 20, 12);
+            webGL.enableVertexAttribArray(a_ValueToInterpolateLocation);
+            var colorOption = circle.getColor();
+            console.log(colorOption);
+            var u_optionLocation = this.webGLUniformLocations[CircleDefaults.U_OPTION];
+            webGL.uniform1f(u_optionLocation, colorOption);
+            // USE THE UNIFORMS
+            var u_SpriteTransformLocation = this.webGLUniformLocations[CircleDefaults.U_SPRITETRANSFORM];
+            webGL.uniformMatrix4fv(u_SpriteTransformLocation, false, this.spriteTransform.getData());
+            // DRAW THE SPRITE AS A TRIANGLE STRIP USING 4 VERTICES, STARTING AT THE START OF THE ARRAY (index 0)
+            webGL.drawArrays(webGL.TRIANGLE_FAN, 0, CircleDefaults.NUM_VERTICES);
+        }
+    }]);
+
+    return WebGLGameCircleRenderer;
+}();
+
+exports.WebGLGameCircleRenderer = WebGLGameCircleRenderer;
+
+},{"../math/MathUtilities":5,"../math/Matrix":6,"../math/Vector3":7,"./WebGLGameShader":11}],10:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var WebGLGameCircleRenderer_1 = require("./WebGLGameCircleRenderer");
 /*
  * This serves as the subsystem that manages all game rendering.
  */
 var TextRenderer_1 = require("./TextRenderer");
 var WebGLGameSpriteRenderer_1 = require("./WebGLGameSpriteRenderer");
+var GradientCircle_1 = require("../scene/GradientCircle");
 
 var WebGLGameRenderingSystem = function () {
     function WebGLGameRenderingSystem() {
@@ -1559,6 +1776,11 @@ var WebGLGameRenderingSystem = function () {
             return this.textRenderer;
         }
     }, {
+        key: "getCircleRenderer",
+        value: function getCircleRenderer() {
+            return this.circleRenderer;
+        }
+    }, {
         key: "init",
         value: function init(renderingCanvasId, textCanvasId) {
             // FIRST SETUP webGL
@@ -1591,6 +1813,8 @@ var WebGLGameRenderingSystem = function () {
             // NOW MAKE THE SHADER FOR DRAWING THIS THING
             this.spriteRenderer = new WebGLGameSpriteRenderer_1.WebGLGameSpriteRenderer();
             this.spriteRenderer.init(this.webGL);
+            this.circleRenderer = new WebGLGameCircleRenderer_1.WebGLGameCircleRenderer();
+            this.circleRenderer.init(this.webGL);
             // THIS WILL STORE OUR TEXT
             this.textRenderer = new TextRenderer_1.TextRenderer(textCanvasId, "serif", 18, "#FFFF00");
         }
@@ -1627,8 +1851,42 @@ var WebGLGameRenderingSystem = function () {
         value: function render(visibleSet) {
             // CLEAR THE CANVAS
             this.webGL.clear(this.webGL.COLOR_BUFFER_BIT | this.webGL.DEPTH_BUFFER_BIT);
+            var spriteSet = new Array();
+            var circleSet = new Array();
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = visibleSet[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var v = _step.value;
+
+                    if (v instanceof GradientCircle_1.GradientCircle) {
+                        circleSet.push(v);
+                    } else {
+                        spriteSet.push(v);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            console.log("circle set size: " + circleSet.length);
             // RENDER THE SPRITES ON ONE CANVAS
-            this.spriteRenderer.renderAnimatedSprites(this.webGL, this.canvasWidth, this.canvasHeight, visibleSet);
+            this.spriteRenderer.renderAnimatedSprites(this.webGL, this.canvasWidth, this.canvasHeight, spriteSet);
+            // RENDER THE CIRCLES ON CANVAS
+            this.circleRenderer.renderGradientCircles(this.webGL, this.canvasWidth, this.canvasHeight, circleSet);
             // THEN THE TEXT ON ANOTHER OVERLAPPING CANVAS
             this.textRenderer.render();
         }
@@ -1639,7 +1897,7 @@ var WebGLGameRenderingSystem = function () {
 
 exports.WebGLGameRenderingSystem = WebGLGameRenderingSystem;
 
-},{"./TextRenderer":8,"./WebGLGameSpriteRenderer":11}],10:[function(require,module,exports){
+},{"../scene/GradientCircle":14,"./TextRenderer":8,"./WebGLGameCircleRenderer":9,"./WebGLGameSpriteRenderer":12}],11:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1661,6 +1919,16 @@ var WebGLGameShader = function () {
         key: "getProgram",
         value: function getProgram() {
             return this.program;
+        }
+    }, {
+        key: "getVertexShader",
+        value: function getVertexShader() {
+            return this.vertexShader;
+        }
+    }, {
+        key: "getFragmentShader",
+        value: function getFragmentShader() {
+            return this.vertexShader;
         }
     }, {
         key: "init",
@@ -1715,7 +1983,7 @@ var WebGLGameShader = function () {
 
 exports.WebGLGameShader = WebGLGameShader;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1749,6 +2017,11 @@ var WebGLGameSpriteRenderer = function () {
     }
 
     _createClass(WebGLGameSpriteRenderer, [{
+        key: "getShader",
+        value: function getShader() {
+            return this.shader;
+        }
+    }, {
         key: "init",
         value: function init(webGL) {
             this.shader = new WebGLGameShader_1.WebGLGameShader();
@@ -1884,7 +2157,7 @@ var WebGLGameSpriteRenderer = function () {
 
 exports.WebGLGameSpriteRenderer = WebGLGameSpriteRenderer;
 
-},{"../math/MathUtilities":5,"../math/Matrix":6,"../math/Vector3":7,"./WebGLGameShader":10}],12:[function(require,module,exports){
+},{"../math/MathUtilities":5,"../math/Matrix":6,"../math/Vector3":7,"./WebGLGameShader":11}],13:[function(require,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1897,7 +2170,80 @@ var WebGLGameTexture = function WebGLGameTexture() {
 
 exports.WebGLGameTexture = WebGLGameTexture;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SceneObject_1 = require("./SceneObject");
+
+var GradientCircle = function (_SceneObject_1$SceneO) {
+    _inherits(GradientCircle, _SceneObject_1$SceneO);
+
+    function GradientCircle(width, height) {
+        _classCallCheck(this, GradientCircle);
+
+        var _this = _possibleConstructorReturn(this, (GradientCircle.__proto__ || Object.getPrototypeOf(GradientCircle)).call(this));
+
+        _this.width = width;
+        _this.height = height;
+        _this.radius = 20;
+        var max = 5;
+        var min = 0;
+        _this.color = Math.random() * (max - min + 1) + min;
+        return _this;
+    }
+
+    _createClass(GradientCircle, [{
+        key: "getColor",
+        value: function getColor() {
+            return this.color;
+        }
+    }, {
+        key: "getWidth",
+        value: function getWidth() {
+            return this.width;
+        }
+    }, {
+        key: "getHeight",
+        value: function getHeight() {
+            return this.height;
+        }
+    }, {
+        key: "contains",
+        value: function contains(testX, testY) {
+            var spriteWidth = this.getWidth();
+            var spriteHeight = this.getHeight();
+            var spriteLeft = this.getPosition().getX();
+            var spriteRight = this.getPosition().getX() + spriteWidth;
+            var spriteTop = this.getPosition().getY();
+            var spriteBottom = this.getPosition().getY() + spriteHeight;
+            if (testX < spriteLeft || spriteRight < testX || testY < spriteTop || spriteBottom < testY) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }, {
+        key: "toString",
+        value: function toString() {
+            return "(" + this.getPosition().getX() + ", " + this.getPosition().getY() + ")";
+        }
+    }]);
+
+    return GradientCircle;
+}(SceneObject_1.SceneObject);
+
+exports.GradientCircle = GradientCircle;
+
+},{"./SceneObject":16}],15:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1905,6 +2251,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var AnimatedSprite_1 = require("./sprite/AnimatedSprite");
+var GradientCircle_1 = require("./GradientCircle");
 
 var SceneGraph = function () {
     function SceneGraph() {
@@ -1913,9 +2261,15 @@ var SceneGraph = function () {
         // DEFAULT CONSTRUCTOR INITIALIZES OUR DATA STRUCTURES
         this.animatedSprites = new Array();
         this.visibleSet = new Array();
+        this.graidentCircles = new Array();
     }
 
     _createClass(SceneGraph, [{
+        key: "getTotalSceneNums",
+        value: function getTotalSceneNums() {
+            return this.graidentCircles.length + this.animatedSprites.length;
+        }
+    }, {
         key: "getNumSprites",
         value: function getNumSprites() {
             return this.animatedSprites.length;
@@ -1926,39 +2280,99 @@ var SceneGraph = function () {
             this.animatedSprites.push(sprite);
         }
     }, {
+        key: "addGradientCircle",
+        value: function addGradientCircle(cirlce) {
+            this.graidentCircles.push(cirlce);
+        }
+    }, {
+        key: "getObjAt",
+        value: function getObjAt(testX, testY) {
+            var k = this.visibleSet.length - 1;
+            var i = void 0;
+            for (i = k; i >= 0; i--) {
+                if (this.visibleSet[i].contains(testX, testY)) return this.visibleSet[i];
+            }
+            return null;
+        }
+    }, {
         key: "getSpriteAt",
         value: function getSpriteAt(testX, testY) {
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = this.animatedSprites[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var sprite = _step.value;
-
-                    if (sprite.contains(testX, testY)) return sprite;
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
+            // for (let sprite of this.animatedSprites) {
+            //     if (sprite.contains(testX, testY))
+            //         return sprite;
+            // }
+            // return null;
+            var k = this.animatedSprites.length - 1;
+            var i = void 0;
+            for (i = k; i >= 0; i--) {
+                if (this.animatedSprites[i].contains(testX, testY)) return this.animatedSprites[i];
             }
-
+            return null;
+        }
+    }, {
+        key: "getCircleAt",
+        value: function getCircleAt(testX, testY) {
+            // for (let c of this.graidentCircles) {
+            //     if (c.contains(testX, testY))
+            //         return c
+            // }
+            // return null;
+            var i = void 0;
+            var k = this.graidentCircles.length - 1;
+            for (i = k; i >= 0; i--) {
+                if (this.graidentCircles[i].contains(testX, testY)) return this.graidentCircles[i];
+            }
             return null;
         }
     }, {
         key: "getAnimatedSprites",
         value: function getAnimatedSprites() {
             return this.animatedSprites;
+        }
+    }, {
+        key: "removeCircle",
+        value: function removeCircle(c) {
+            var cPos = c.getPosition();
+            var newArr = new Array();
+            if (c != null) {
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = this.graidentCircles[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var s = _step.value;
+
+                        var pos = s.getPosition();
+                        if (pos.getX() !== cPos.getX() && pos.getY() !== cPos.getY()) {
+                            newArr.push(s);
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
+            }
+            this.graidentCircles = newArr;
+        }
+    }, {
+        key: "removeObj",
+        value: function removeObj(obj) {
+            if (obj instanceof GradientCircle_1.GradientCircle) {
+                this.removeCircle(obj);
+            } else if (obj instanceof AnimatedSprite_1.AnimatedSprite) {
+                this.removeSprite(obj);
+            }
         }
     }, {
         key: "removeSprite",
@@ -2068,6 +2482,31 @@ var SceneGraph = function () {
                 }
             }
 
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
+
+            try {
+                for (var _iterator5 = this.graidentCircles[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var c = _step5.value;
+
+                    this.visibleSet.push(c);
+                }
+            } catch (err) {
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
+                    }
+                } finally {
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
+                    }
+                }
+            }
+
             return this.visibleSet;
         }
     }]);
@@ -2077,7 +2516,7 @@ var SceneGraph = function () {
 
 exports.SceneGraph = SceneGraph;
 
-},{}],14:[function(require,module,exports){
+},{"./GradientCircle":14,"./sprite/AnimatedSprite":17}],16:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2130,7 +2569,7 @@ var SceneObject = function () {
 
 exports.SceneObject = SceneObject;
 
-},{"../math/Vector3":7}],15:[function(require,module,exports){
+},{"../math/Vector3":7}],17:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2242,7 +2681,7 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
 
 exports.AnimatedSprite = AnimatedSprite;
 
-},{"../SceneObject":14}],16:[function(require,module,exports){
+},{"../SceneObject":16}],18:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2326,7 +2765,7 @@ var AnimatedSpriteType = function () {
 
 exports.AnimatedSpriteType = AnimatedSpriteType;
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2334,6 +2773,12 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var AnimatedSpriteDemo_1 = require("./../../animated_sprite_demo/AnimatedSpriteDemo");
+var GradientCircle_1 = require("./../scene/GradientCircle");
+/*
+ * This provides responses to UI input.
+ */
+var AnimatedSprite_1 = require("../scene/sprite/AnimatedSprite");
 
 var UIController = function () {
     function UIController() {
@@ -2341,32 +2786,91 @@ var UIController = function () {
 
         _classCallCheck(this, UIController);
 
+        this.mouseOverHandler = function (event) {
+            console.log("MOUSING OVER YO");
+            var mousePressX = event.clientX;
+            var mousePressY = event.clientY;
+            var sprite = _this.scene.getSpriteAt(mousePressX, mousePressY);
+            var circle = _this.scene.getCircleAt(mousePressX, mousePressY);
+            var obj = _this.scene.getObjAt(mousePressX, mousePressY);
+            var textRenderer = _this.renderingSystem.getTextRenderer();
+            _this.mouseX = event.clientX;
+            _this.mouseY = event.clientY;
+            if (obj != null) {
+                _this.mouseOverObj = obj;
+            } else {
+                _this.mouseOverObj = null;
+            }
+            // if (sprite != null) {
+            //     console.log("Mousing over the sprite");
+            //     this.mouseOverSprite = sprite;
+            // } else if (circle != null) {
+            //     this.mouseOverCircle = circle;
+            // } else {
+            //     this.mouseOverSprite = null;
+            //     this.mouseOverCircle = null;
+            // }
+        };
         this.mouseDoubleClickHandler = function (event) {
             console.log("removing operation");
             var mousePressX = event.clientX;
             var mousePressY = event.clientY;
+            var obj = _this.scene.getObjAt(mousePressX, mousePressY);
             var sprite = _this.scene.getSpriteAt(mousePressX, mousePressY);
+            var circle = _this.scene.getCircleAt(mousePressX, mousePressY);
             console.log("mousePressX: " + mousePressX);
             console.log("mousePressY: " + mousePressY);
             console.log("sprite: " + sprite);
-            if (sprite != null) {
-                // Remove sprite
-                _this.scene.removeSprite(sprite);
+            if (obj != null) {
+                _this.scene.removeObj(obj);
             }
+            // if (sprite != null) {
+            //     // Remove sprite
+            //     this.scene.removeSprite(sprite);
+            // } else if (circle != null) {
+            //     this.scene.removeCircle(circle);
+            // }
         };
         this.mouseOneClickHandler = function (event) {
+            var DEMO_SPRITE_TYPES = ['resources/animated_sprites/RedCircleMan.json', 'resources/animated_sprites/MultiColorBlock.json'];
+            var DEMO_SPRITE_STATES = {
+                FORWARD_STATE: 'FORWARD',
+                REVERSE_STATE: 'REVERSE'
+            };
             var mousePressX = event.clientX;
             var mousePressY = event.clientY;
             var sprite = _this.scene.getSpriteAt(mousePressX, mousePressY);
-            if (sprite == null) {
-                // randomly add a new sprite
-                console.log("adding sprite operation");
+            var circle = _this.scene.getCircleAt(mousePressX, mousePressY);
+            var ResourceManager = AnimatedSpriteDemo_1.game.getResourceManager();
+            var max = 1;
+            var min = 0;
+            var k = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (k < 1) {
+                if (sprite == null && circle == null) {
+                    // randomly add a new sprite
+                    var _max = 1;
+                    var _min = 0;
+                    var i = Math.floor(Math.random() * (_max - _min + 1)) + _min;
+                    console.log("adding sprite operation");
+                    var spriteTypeToUse = DEMO_SPRITE_TYPES[i];
+                    var animatedSpriteType = ResourceManager.getAnimatedSpriteTypeById(spriteTypeToUse);
+                    var spriteToAdd = new AnimatedSprite_1.AnimatedSprite(animatedSpriteType, DEMO_SPRITE_STATES.FORWARD_STATE);
+                    spriteToAdd.getPosition().set(mousePressX, mousePressY, 0.0, 1.0);
+                    _this.scene.addAnimatedSprite(spriteToAdd);
+                }
+            } else {
+                if (sprite == null && circle == null) {
+                    var circleToAdd = new GradientCircle_1.GradientCircle(300, 300);
+                    circleToAdd.getPosition().set(mousePressX, mousePressY, 0.0, 1.0);
+                    _this.scene.addGradientCircle(circleToAdd);
+                }
             }
         };
         this.mouseDownHandler = function (event) {
             var mousePressX = event.clientX;
             var mousePressY = event.clientY;
             var sprite = _this.scene.getSpriteAt(mousePressX, mousePressY);
+            var circle = _this.scene.getCircleAt(mousePressX, mousePressY);
             console.log("mousePressX: " + mousePressX);
             console.log("mousePressY: " + mousePressY);
             console.log("sprite: " + sprite);
@@ -2375,31 +2879,65 @@ var UIController = function () {
                 _this.spriteToDrag = sprite;
                 _this.dragOffsetX = sprite.getPosition().getX() - mousePressX;
                 _this.dragOffsetY = sprite.getPosition().getY() - mousePressY;
+            } else if (circle != null) {
+                _this.circleToDrag = circle;
+                _this.dragOffsetX = circle.getPosition().getX() - mousePressX;
+                _this.dragOffsetY = circle.getPosition().getY() - mousePressY;
             }
         };
         this.mouseMoveHandler = function (event) {
             if (_this.spriteToDrag != null) {
                 _this.spriteToDrag.getPosition().set(event.clientX + _this.dragOffsetX, event.clientY + _this.dragOffsetY, _this.spriteToDrag.getPosition().getZ(), _this.spriteToDrag.getPosition().getW());
+            } else if (_this.circleToDrag != null) {
+                _this.circleToDrag.getPosition().set(event.clientX + _this.dragOffsetX, event.clientY + _this.dragOffsetY, _this.circleToDrag.getPosition().getZ(), _this.circleToDrag.getPosition().getW());
             }
         };
         this.mouseUpHandler = function (event) {
             _this.spriteToDrag = null;
+            _this.circleToDrag = null;
         };
     }
 
     _createClass(UIController, [{
         key: "init",
-        value: function init(canvasId, initScene) {
+        value: function init(canvasId, initScene, renderingSystem) {
             this.spriteToDrag = null;
             this.scene = initScene;
             this.dragOffsetX = -1;
             this.dragOffsetY = -1;
+            this.renderingSystem = renderingSystem;
             var canvas = document.getElementById(canvasId);
             canvas.addEventListener("mousedown", this.mouseDownHandler);
             canvas.addEventListener("mousemove", this.mouseMoveHandler);
             canvas.addEventListener("mouseup", this.mouseUpHandler);
             canvas.addEventListener("click", this.mouseOneClickHandler);
             canvas.addEventListener("dblclick", this.mouseDoubleClickHandler);
+            canvas.addEventListener("mousemove", this.mouseOverHandler);
+        }
+    }, {
+        key: "getMouseX",
+        value: function getMouseX() {
+            return this.mouseX;
+        }
+    }, {
+        key: "getMouseY",
+        value: function getMouseY() {
+            return this.mouseY;
+        }
+    }, {
+        key: "getMouseOverSprite",
+        value: function getMouseOverSprite() {
+            return this.mouseOverSprite;
+        }
+    }, {
+        key: "getMouseOverCircle",
+        value: function getMouseOverCircle() {
+            return this.mouseOverCircle;
+        }
+    }, {
+        key: "getMouseOverObj",
+        value: function getMouseOverObj() {
+            return this.mouseOverObj;
         }
     }]);
 
@@ -2408,6 +2946,6 @@ var UIController = function () {
 
 exports.UIController = UIController;
 
-},{}]},{},[1])
+},{"../scene/sprite/AnimatedSprite":17,"./../../animated_sprite_demo/AnimatedSpriteDemo":1,"./../scene/GradientCircle":14}]},{},[1])
 
 //# sourceMappingURL=demo.js.map

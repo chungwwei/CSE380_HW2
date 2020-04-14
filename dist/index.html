@@ -34,6 +34,23 @@
         <canvas id="text_canvas"></canvas>
 
         <!-- LOAD THE DEMO -->
+        <script type="glsl" id="standard-vs">
+            precision highp float;
+            attribute vec2 positions;
+
+            void main() {
+                gl_Position = vec4(positions, 0.0, 1.0);
+            }
+            
+        </script>
+        <script type="glsl" id="standard-fs">
+            precision highp float;
+            uniform vec4 color;
+            void main() {
+                gl_FragColor = color;
+            }
+            </script>
         <script src="demo.js"></script>
+        
     </body>
 </html>
